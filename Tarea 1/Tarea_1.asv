@@ -17,6 +17,9 @@ x0 = zeros(length(bcsstk),1);
 [x_precond_M1, ers_precond_M1] = grad_conj(bcsstk, b, x0, M1, 10^-6);
 [x_precond_M2, ers_precond_M2] = grad_conj(bcsstk, b, x0, M2, 10^-6);
 
+[x_precond_claud_M1, ers_precond_claud_M1] = gradConjPrecond(bcsstk, b, x0, M1, 10^-6);
+[x_precond_M2_claud, ers_precond_claud_M2] = gradConjPrecond(bcsstk, b, x0, M2, 10^-6);
+
 % Grafica los errores 
 figure
 semilogy(ers_precond_M1, 'b-', 'LineWidth', 1.5); hold on
@@ -25,14 +28,19 @@ xlabel('Iteración k'); ylabel('||b - A x_k||_2');
 legend('M_1 = D', 'M_2 = (D+L)D^{-1}(D+U)'); grid on
 title('Gradiente conjugado precondicionado, bcsstk06')
 
+figure
+semilogy(ers_precond_claud_M1, 'b-', 'LineWidth', 1.5); hold on
+semilogy(ers_precond_claud_M2, 'r-', 'LineWidth', 1.5);
+xlabel('Iteración k'); ylabel('||b - A x_k||_2');
+legend('M_1 = D', 'M_2 = (D+L)D^{-1}(D+U)'); grid on
+title('Gradiente conjugado precondicionado, bcsstk06')
+
 % Aproxima la solución del sistema Ax = b con gauss_seidel
 [x_gauss, ers_gauss] = gauss_seidel(bcsstk, b, x0, 10^-6);
-% Grafica los errores
 figure
 semilogy(ers_gauss, 'b-', 'LineWidth', 1.5); hold on;
 xlabel('Iteración k'); ylabel('||b - A x_k||_2'); grid on
 title('Gauss Seidel, bcsstk06')
-
 % Ejercicio 3
 
 % Ejercicio 4
@@ -119,17 +127,17 @@ function [x, res] = gauss_seidel(A, b, x0, tol)
 DL = tril(A); U  = triu(A, 1);
 x  = x0;
 
-% Revisa convergencia (norma de (L+D)^-1*U < 1)
-if norm(DL\U, inf) <= 1
+% Revisar convergencia (norma de (L+D) < 1)
+if nomr(M\N, inf) <= 1
     error("No se cumple el supuesto de convergencia")
 end
 
 res = norm(b - A*x);
 cont = 0;
-% Construya el ciclo
 while norm(b - A*x) >= tol && cont < 10*length(b)
-    x_new  = DL\b - DL\U*x;        
-    x   = x_new;
+    xn  = DL\b - DL\U*x;        % resuelve sistema triangular, sin inversas
+    dif = norm(xn - x);
+    x   = xn;
     res = [res; norm(b - A*x)];
     cont = cont + 1;
 end
