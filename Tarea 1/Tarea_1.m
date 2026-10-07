@@ -53,18 +53,29 @@ t_med  = [0 0.2 0.4 0.6 0.8]';
 Ti_med = [37 36.72 36.41 36.12 35.90]';
 Ta_med = 21; T0_med = 37;
 
-% Defina la función dada en el enunciado
+% Defina la función dada en el enunciado y encuentre sus derivadas
 f_med = @(k) Ta_med + (T0_med - Ta_med)*exp(-k*t_med) - Ti_med;
 f_med_sum = @(k) sum(f_med(k)^.2);
-df_med = @(k) sum(2*f_med(k).*(-(T0_med-Ta_med)*t_med.*exp(-k*t_med)));
+df_med = @(k) sum(2*f_med(k).*(-(T0_med - Ta_med)*t_med.*exp(-k*t_med)));
 df2_med = @(k) sum(2*((T0_med-Ta_med)*t_med.*exp(-k*t_med)).^2 + 2*f_med(k).*((T0_med-Ta_med)*t_med.^2.*exp(-k*t_med)));
 
-% Defina la función g, que cumple el teorema de punto fijo
-g = @(k) k - (1/500)*df(k);
+% Encuentra el punto critico aproximando k tal que f'(k) = 0
+pto_crit_med = fzero(df_med, 0.01);
 
-% Aplique el método de punto fijo
-pto_fijo_med = punto_fijo(g, 0.1, 10^-6);
+% Evalua el punto critico en la segunda derivada y clasifica min/max
+df2_med_kc = df2_med(pto_crit_med);
+if df2_med_kc > 0
+    disp("En el punto crítico de la función f(k) se tiene un mínimo")
+else
+    disp("En el punto crítico de la función f(k) se tiene un máximo")
+end
 
+% Defina los valores para el caso de la persona fallecida en San Pedro
+Ta_muerto = 31;
+T0_muerto = 37;
+T_muerto = 34;
+
+t_muerte = -log((T_muerto - Ta_muerto)/(T0_muerto - Ta_muerto))/pto_crit_med;
 %% Ejercicio 11
 
 %% Ejercicio 12
