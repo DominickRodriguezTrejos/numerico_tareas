@@ -49,7 +49,7 @@ aproximarRaiz(1, 1e-10)
 %% Ejercicio 7
 
 %% Ejercicio 8
-disp("Ejercicio 8")
+disp("Ejercicio 8)")
 % (a)
 f = @(x) 816 * x^3 - 3835 * x^2 + 6000 * x - 3125;
 x0 = fzero(f, [1.4,1.7]);
@@ -92,7 +92,7 @@ df2_med = @(k) sum(2*((T0_med-Ta_med)*t_med.*exp(-k*t_med)).^2 + 2*f_med(k).*((T
 
 % Encuentra el punto critico aproximando k tal que f'(k) = 0
 pto_crit_med = fzero(df_med, 0.01);
-fprintf("El punto crítico de la función es aproximadamente %.4f\n", pto_crit_med)
+disp("El punto crítico de la función es aproximadamente " num2str(pto_crit_med)])
 
 % Evalua el punto critico en la segunda derivada y clasifica min/max
 df2_med_kc = df2_med(pto_crit_med);
@@ -111,16 +111,7 @@ t_muerte = -log((T_muerto - Ta_muerto)/(T0_muerto - Ta_muerto))/pto_crit_med;
 %% Ejercicio 11
 
 %% Ejercicio 12
-disp("Ejercicio 12.f")
-F = @(x) [3*x(1) - cos(x(2)*x(3)) - 0.5;
-    x(1)^2-81*(x(2)+0.1)^2+sin(x(3))+1.06;
-    exp(-x(1)*x(2))+20*x(3)-(3-10*pi)/(3)];
-J = @(x) [3, x(3)*sin(x(2)*x(3)), x(2)*sin(x(2)*x(3));
-    2*x(1), -162*(x(2) + 0.1), cos(x(3));
-    -x(2)*exp(-x(1)*x(2)), -x(1)*exp(-x(1)*x(2)), 20];
-x0 = [0.1 , 0.1 , -0.1];
 
-NewtonSistemasNoLineales(F, J, x0, 1e-4)
 %% Ejercicio 13
 
 %% Ejercicio 14
@@ -132,13 +123,13 @@ function[x, res] = grad_conj(A, b, x0, M, tol)
 % Funcion del metodo iterativo de gradiente conjugado con precondicionador 
 % Aplica el metodo de gradiente conjugado para aproximar la solucion x de
 % la ecuacion Ax = b.
-% Entradas: 
+% Inputs: 
 %         A -- matriz nxn, simetrica y definida positiva.
 %         b -- vector de constantes.
 %        x0 -- aproximacion inicial de la solucion.
 %         M -- matriz que precondiciona el sistema.
 %       tol -- tolerancia de convergencia
-% Salidas: 
+% Outputs: 
 %          x -- aproximacion final de la solucion del sistema.
 %        res -- vector columna con los errores absolutos de cada iteraccion.
 
@@ -175,12 +166,12 @@ end
 function [x, res] = gauss_seidel(A, b, x0, tol)
 % Funcion del metodo de Gauss Seidel 
 % Aplica el metodo de Gauss Seidel para aproximar la solucion x de la ecuacion Ax = b.
-% Entradas: 
+% Inputs: 
 %         A -- matriz estrictamente diagonal dominante de dimensión n.
 %         b -- vector de constantes.
 %        x0 -- aproximacion inicial de la solucion.
 %       tol -- tolerancia de convergencia.
-% Salidas: 
+% Outputs: 
 %         x -- aproximacion final de la solucion del sistema. 
 %       res -- vector columna con los errores absolutos de cada iteraccion.
 
@@ -205,85 +196,30 @@ end
 
 end
 
-function resultado = aproximarRaiz(x0, tolerancia)
-% Funcion para aproximar la raiz cubica de veintiuno con una sucesion
-% especifica
-% Entradas:         
-%           x0 -- estimacion inicial
-%   tolerancia -- precision deseada por el usuario
-%
-% Salidas:   
-%    resultado -- la estimacion del valor real
+function[x, ite, res] = punto_fijo(g, x0, tol)
+% Funcion del metodo de punto fijo.
+% Aproxima la solucion de g(x) = 0 por medio del metodo de punto fijo.
+% Inputs: 
+%         g  -- función que cumple el teorema de punto fijo.
+%        x0  -- aproximación incial.
+%       tol  -- tolerancia de convergencia.
+% Outputs: 
+%          x -- aproximacion final a la raiz de f.
+%        ite -- cantidad de iteraciones realizadas
+%        res -- matriz que contiene cada iteracion de x y su error.
 
-if (x0 > 0 && tolerancia > 0)
-    contador = 1;
-    er = 1;
-    while (contador < 200 && er > tolerancia)
-        resultado = (20*x0 + 21/x0^2)/21;
-        er = abs(resultado - x0);
-        x0 = resultado;
-        contador = contador + 1;
-    end
-else
-    error("el valor inicial y la tolerancia deben ser positivos")
-end
-
-end
-
-function [M] = newtonR(f, df, x, tol, iterMax)
-% Encuentra raices de una funcion por medio del metodo de Newton-Raphson
-% Entradas:       
-%                 f -- una funcion continua
-%                df -- la derivada de f
-%                 x -- la estimacion inicial de la raiz
-%               tol -- tolerancia entre estimaciones para detener 
-%                       el algoritmo
-%           iterMax -- cantidad maxima de iteraciones del algoritmo
-%
-% Salidas:        
-%                 M -- matriz con: estimacion y error entre estimaciones
-
+ite = 1;
 er = tol + 1;
-contador = 1;
-M = [x inf];
-while er > tol && contador <= iterMax
-    q = df(x);
-    if abs(q) < tol
-        return
-    end
-    x1 = x - f(x) / q;
-    er = abs(x1 - x);
-    contador = contador + 1;
-    x = x1;
-    M = [M; [x er]]; % concatenar por filas
-end
+res = [x0, er];
 
-end
-
-function x2 = NewtonSistemasNoLineales(F, J, x0, tol)
-% Devuelve una aproximacion para la solucion de un sistema no lineal por
-% medio del metodo de Newton
-%
-% Entradas:   
-%             F -- vector con las funciones del sistema
-%             J -- la matriz jacobiana
-%            x0 -- aproximacion inicial
-%           tol -- tolerancia para el criterio de parada
-%
-% Salidas:    
-%             x -- aproximacion a la solucion
-
-x1 = x0(:);
-error = inf;
-contador = 1;
-while error > tol && contador < 1000
-    Fx = F(x1);
-    Jx = J(x1);
-    y = -Jx \ Fx;
-    x2 = x1 + y;
-    error = norm(x2 - x1, inf);
-    x1 = x2;
-    contador = contador + 1;
+% Defina el ciclo
+while er > tol && ite < 100
+    t = x0;
+    x = g(x0);
+    er = abs(t - x);
+    ite = ite + 1;
+    res = [res; x, er];
+    x0 = x;
 end
 
 end
