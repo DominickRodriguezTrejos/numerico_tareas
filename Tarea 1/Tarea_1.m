@@ -1,3 +1,9 @@
+%% Tarea 1 - MA0501
+% Integrantes:
+% Maria Paula Jimenez Torres - C04095
+% Andy Roberto Peralta Duarte - C25827
+% Dominick Rodriguez Trejos - B76600
+% Holmar Rivera Castellon - B86564
 %% Ejercicio 1
 f = @(x) exp(x) - 2*x - 1;
 a = 1;
@@ -133,9 +139,11 @@ for x = x_cero
     y = [y resul(length(resul), 1)];
 end
 
+figure;
 scatter(x_cero,y, 8, "filled");
 xlabel("x_0")
 ylabel("Valor de convergencia")
+hold on;
 
 %% Ejercicio 9
 %d)
@@ -411,7 +419,6 @@ function [M, p_sig] = metodo_muller(p, p0, p1, p2, tol, N)
 end
 
 % d)
-clear; clc; close all;
 p = [16, -40, 5, 20, 6];
 
 p0 = 0.5;
