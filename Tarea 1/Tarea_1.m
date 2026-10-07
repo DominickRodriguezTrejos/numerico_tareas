@@ -1,6 +1,6 @@
-% Ejercicio 1
+%% Ejercicio 1
 
-% Ejercicio 2
+%% Ejercicio 2
 % Carga la matriz
 load('bcsstk06.mat')
 bcsstk = Problem.A;
@@ -33,33 +33,49 @@ semilogy(ers_gauss, 'b-', 'LineWidth', 1.5); hold on;
 xlabel('Iteración k'); ylabel('||b - A x_k||_2'); grid on
 title('Gauss Seidel, bcsstk06')
 
-% Ejercicio 3
+%% Ejercicio 3
 
-% Ejercicio 4
+%% Ejercicio 4
 
-% Ejercicio 5
+%% Ejercicio 5
 
-% Ejercicio 6
+%% Ejercicio 6
 
-% Ejercicio 7
+%% Ejercicio 7
 
-% Ejercicio 8
+%% Ejercicio 8
 
-% Ejercicio 9
+%% Ejercicio 9
 
-% Ejercicio 10
+%% Ejercicio 10
+% Inicializa los valores constantes.
+t_med  = [0 0.2 0.4 0.6 0.8]';
+Ti_med = [37 36.72 36.41 36.12 35.90]';
+Ta_med = 21; T0_med = 37;
 
-% Ejercicio 11
+% Defina la función dada en el enunciado
+f_med = @(k) Ta_med + (T0_med - Ta_med)*exp(-k*t_med) - Ti_med;
+f_med_sum = @(k) sum(f_med(k)^.2);
+df_med = @(k) sum(2*f_med(k).*(-(T0_med-Ta_med)*t_med.*exp(-k*t_med)));
+df2_med = @(k) sum(2*((T0_med-Ta_med)*t_med.*exp(-k*t_med)).^2 + 2*f_med(k).*((T0_med-Ta_med)*t_med.^2.*exp(-k*t_med)));
 
-% Ejercicio 12
+% Defina la función g, que cumple el teorema de punto fijo
+g = @(k) k - (1/500)*df(k);
 
-% Ejercicio 13
+% Aplique el método de punto fijo
+pto_fijo_med = punto_fijo(g, 0.1, 10^-6);
 
-% Ejercicio 14
+%% Ejercicio 11
 
-% Ejercicio 15
+%% Ejercicio 12
 
-% FUNCIONES
+%% Ejercicio 13
+
+%% Ejercicio 14
+
+%% Ejercicio 15
+
+%% FUNCIONES
 function[x, res] = grad_conj(A, b, x0, M, tol)
 % Funcion del metodo iterativo de gradiente conjugado con precondicionador 
 % Aplica el metodo de gradiente conjugado para aproximar la solucion x de
@@ -69,7 +85,7 @@ function[x, res] = grad_conj(A, b, x0, M, tol)
 %         b -- vector de constantes.
 %        x0 -- aproximacion inicial de la solucion.
 %         M -- matriz que precondiciona el sistema.
-%       tol -- tolerancia para detener el programa.
+%       tol -- tolerancia de convergencia
 % Outputs: 
 %          x -- aproximacion final de la solucion del sistema.
 %        res -- vector columna con los errores absolutos de cada iteraccion.
@@ -101,6 +117,7 @@ while norm(alpha*p) >= tol && cont < 10*length(b)
     res = [res; norm(r)];
     cont = cont + 1;
 end
+
 end
 
 function [x, res] = gauss_seidel(A, b, x0, tol)
@@ -110,7 +127,7 @@ function [x, res] = gauss_seidel(A, b, x0, tol)
 %         A -- matriz estrictamente diagonal dominante de dimensión n.
 %         b -- vector de constantes.
 %        x0 -- aproximacion inicial de la solucion.
-%       tol -- tolerancia para detener el programa.
+%       tol -- tolerancia de convergencia.
 % Outputs: 
 %         x -- aproximacion final de la solucion del sistema. 
 %       res -- vector columna con los errores absolutos de cada iteraccion.
@@ -133,4 +150,33 @@ while norm(b - A*x) >= tol && cont < 10*length(b)
     res = [res; norm(b - A*x)];
     cont = cont + 1;
 end
+
+end
+
+function[x, ite, res] = punto_fijo(g, x0, tol)
+% Funcion del metodo de punto fijo.
+% Aproxima la solucion de g(x) = 0 por medio del metodo de punto fijo.
+% Inputs: 
+%         g  -- función que cumple el teorema de punto fijo.
+%        x0  -- aproximación incial.
+%       tol  -- tolerancia de convergencia.
+% Outputs: 
+%          x -- aproximacion final a la raiz de f.
+%        ite -- cantidad de iteraciones realizadas
+%        res -- matriz que contiene cada iteracion de x y su error.
+
+ite = 1;
+er = tol + 1;
+res = [x0, er];
+
+% Defina el ciclo
+while er > tol && ite < 100
+    t = x0;
+    x = g(x0);
+    er = abs(t - x);
+    ite = ite + 1;
+    res = [res; x, er];
+    x0 = x;
+end
+
 end
