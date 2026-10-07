@@ -139,6 +139,8 @@ ylabel("Valor de convergencia")
 
 %% Ejercicio 9
 %d)
+clear; clc; close all;
+
 f_poly = [816, -3835, 6000, -3125]; 
 x0  = 1.6;                           
 tol = 1e-6;                         
@@ -168,6 +170,8 @@ ylabel('Error |x_k - c|');
 legend('Método de Halley (Cúbico)', 'Método de Newton (Cuadrático)', 'Location', 'northeast');
 
 % e)
+clear; clc; close all;
+
 f_poly = [816, -3835, 6000, -3125]; 
 tol    = 1e-6;                         
 xx     = linspace(1.4, 1.7, 500); 
@@ -274,6 +278,7 @@ function [L, U, P, Q] = eliminacionGaussianaPivoteoTotal(A)
         end
     end
 end
+
 %% Ejercicio 12
 disp("Ejercicio 12.f")
 F = @(x) [3*x(1) - cos(x(2)*x(3)) - 0.5;
@@ -286,7 +291,26 @@ x0 = [0.1 , 0.1 , -0.1];
 
 NewtonSistemasNoLineales(F, J, x0, 1e-4)
 %% Ejercicio 13
+
+%b.1)
+
+function A = generarMatrizA(m)
+% generarMatrizA: Genera la matriz m x m pedida
+% Entrada:
+%   m - Dimensión de la matriz 
+% Salida:
+%   A - Matriz m x m con 1s en la diagonal y última columna y -1s debajo de la diagonal.
+
+
+A = -tril(ones(m), -1);
+A = A + eye(m);
+A(:, end) = 1;
+
+end
+
 % b.2)
+clear; clc; close all;
+
 m = 50;
 A = generarMatrizA(m);
 
@@ -301,6 +325,7 @@ fprintf('Factor de crecimiento rho(A): %.4e\n', rho_A);
 fprintf('Norma ||A - L*U||_2:          %.4e\n\n', norma_error_LU);
 
 % b.3)
+
 m_vals = 10:60;
 num_m = length(m_vals);
 
@@ -339,8 +364,14 @@ xlabel('Dimensión m');
 ylabel('Error ||xExact - xApr||_2 (Escala Logarítmica)');
 legend('Factorización LU', 'Factorización QR', 'Location', 'northwest');
 
+
+
+%% Ejercicio 14
+
 %% Ejercicio 15
+
 % c)
+
 function [M, p_sig] = metodo_muller(p, p0, p1, p2, tol, N)
     % metodo_muller Implementa el algoritmo del metodo de Muller
     %
@@ -408,7 +439,7 @@ function [M, p_sig] = metodo_muller(p, p0, p1, p2, tol, N)
     
         i = i + 1;
     end
-end
+   end
 
 % d)
 clear; clc; close all;
@@ -429,6 +460,8 @@ disp(M);
 
 fprintf('\nResultado Final:\n');
 fprintf('La aproximación x_8 es: %.6f + %.6fi\n', real(x8), imag(x8));
+
+
 %% FUNCIONES
 function [M, cont] = division_multiples_secciones(f, a, b, n, tol)
 % DIVISION_MULTIPLES_SECCIONES Busca una raíz de f(x) = 0 dividiendo el
@@ -501,6 +534,71 @@ while er > tol
     end
 end
 
+end
+
+function [M, cont] = division_multiples_secciones(f, a, b, n, tol)
+% DIVISION_MULTIPLES_SECCIONES Busca una raíz f(x) = 0 dividiendo el intervalo [a, b] en 'n' subintervalos por iteración.
+%
+% Entradas:
+%   f    - funcion
+%   a    - Límite inferior del intervalo inicial a_0
+%   b    - Límite superior del intervalo inicial b_0
+%   n    - Número de subintervalos
+%   tol  - Tolerancia 
+%
+% Salidas:
+%   M    - Matriz de resultados
+%   cont - Numero total de iteraciones
+
+% Verificación inicial de existencia de raíz (Teorema de Bolzano)
+if (f(a) * f(b) > 0)
+    warning('El método puede no funcionar ya que f(a)*f(b) > 0.');
+    M = [];
+    cont = 0;
+    return;
+end
+
+cont = 0;
+er = abs(b - a);
+
+while er > tol
+
+    h = (b - a) / n;
+    a_nuevo = a;
+    b_nuevo = b;
+
+    for i = 1:n
+        s_i_prev = a + (i - 1) * h; 
+        s_i      = a + i * h;       
+
+        if f(s_i) == 0
+            a_nuevo = s_i;
+            b_nuevo = s_i;
+            break;
+        end
+
+        if f(s_i_prev) * f(s_i) < 0
+            a_nuevo = s_i_prev;
+            b_nuevo = s_i;
+            break;
+        end
+    end
+
+    a = a_nuevo;
+    b = b_nuevo;
+
+    x_k = (a + b) / 2;     
+    er  = abs(b - a);       
+
+    cont = cont + 1;
+    M(cont, 1) = x_k;
+    M(cont, 2) = er;
+    M(cont, 3) = a;         
+    M(cont, 4) = b;         
+
+    if a == b
+        break;
+    end
 end
 
 function[x, res] = grad_conj(A, b, x0, M, tol)
@@ -632,6 +730,7 @@ function [M] = newtonR(f, df, x, tol, iterMax)
         x = x1;
         M = [M; [x er]]; % concatenar por filas
     end
+
 end
 
 function x2 = NewtonSistemasNoLineales(F, J, x0, tol)
@@ -659,6 +758,7 @@ function x2 = NewtonSistemasNoLineales(F, J, x0, tol)
         x1 = x2;
         contador = contador + 1;
     end
+
 end
 
 function suc  = iter(f, x0, tol)
@@ -716,18 +816,4 @@ function[M] = metodoNewton(f,df,x,tol)
         M(cont+1,2) = er;
         cont = cont + 1; 
     end
-end
-
-function A = generarMatrizA(m)
-    % generarMatrizA: Genera la matriz m x m pedida
-    % Entrada:
-    %   m - Dimensión de la matriz 
-    % Salida:
-    %   A - Matriz m x m con 1s en la diagonal y última columna y -1s debajo de la diagonal.
-
-
-    A = -tril(ones(m), -1);
-    A = A + eye(m);
-    A(:, end) = 1;
-
 end
